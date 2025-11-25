@@ -1,11 +1,16 @@
 from CPQ_SF_CpqHelper import CPQ_BP_STANDARD_FIELD, CPQ_BP_CUSTOM_FIELD
-
+USER_PWD_AUTH = "USER_PWD_AUTH"
+CLIENT_CREDENTIALS_AUTH = "CLIENT_CREDENTIALS_AUTH"
 
 ###############################################################################################
 # Class CL_GeneralIntegrationSettings:
 #       Class to store feature enablement properties
 ###############################################################################################
 class CL_GeneralIntegrationSettings:
+    # Authentication Type for Salesforce Integration - USER_PWD_AUTH / CLIENT_CREDENTIALS_AUTH
+    AUTHENTICATION_TYPE = CLIENT_CREDENTIALS_AUTH
+    # Create products in Salesforce when sending data from CPQ items
+    CREATE_PRODUCTS_IN_SALESFORCE = False
     # Update existing products in Salesforce when sending data from CPQ items
     UPDATE_EXISTING_PRODUCTS_IN_SALESFORCE = False
     # Attach quote to opportunity immediately upon quote is created
@@ -29,7 +34,7 @@ class CL_GeneralIntegrationSettings:
     # Update custom object line item and disable deletion of all object line items
     UPDATE_CUSTOM_OBJECT = True
     # Update opportunity line item and disable deletion of all opportunity line items
-    UPDATE_OPP_LINE_ITEM = True
+    UPDATE_OPP_LINE_ITEM = False
 
 ###############################################################################################
 # Class CL_CpqIntegrationParams:

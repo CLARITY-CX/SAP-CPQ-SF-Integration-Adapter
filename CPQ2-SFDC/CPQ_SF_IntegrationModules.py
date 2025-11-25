@@ -1,5 +1,5 @@
 from CPQ_SF_Configuration import CL_SalesforceSettings
-from CPQ_SF_IntegrationSettings import CL_GeneralIntegrationSettings, CL_SalesforceAccountObjects, CL_SalesforceIntegrationParams, CL_CrmIdBusinessPartnerMapping, CL_SalesforceQuoteParams
+from CPQ_SF_IntegrationSettings import CL_GeneralIntegrationSettings, CL_SalesforceAccountObjects, CL_SalesforceIntegrationParams, CL_CrmIdBusinessPartnerMapping, CL_SalesforceQuoteParams, USER_PWD_AUTH, CLIENT_CREDENTIALS_AUTH
 from CPQ_SF_CpqHelper import CPQ_BP_CUSTOM_FIELD, CPQ_BP_STANDARD_FIELD, CL_CpqHelper
 from CPQ_SF_FunctionModules import get_opportunity_mapping_status, get_quote_business_partner, get_quote_opportunity_id
 from CPQ_SF_IntegrationReferences import CL_SalesforceApis as API, CL_CompositeRequestReferences as REF, CL_IntegrationReferences as INT_REF
@@ -81,7 +81,6 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 							newrow["OPPORTUNITYID"] = self.Session["OpportunityId"]
 						else:
 							newrow["OPPORTUNITYID"] = self.Quote["CPQ_SF_OPPORTUNITY_ID"]
-						newrow["OPPORTUNITYID"] = self.Quote["CPQ_SF_OPPORTUNITY_ID"]
 						newrow["OPPORTUNITYNAME"] = self.Quote["CPQ_SF_OPPORTUNITY_NAME"]
 					elif self.Session["OpportunityId"]:
 						newrow["OPPORTUNITYID"] = self.Session["OpportunityId"]
@@ -135,7 +134,10 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		accessToken = str()
 		url = CL_SalesforceSettings.SALESFORCE_URL + API.AUTH_API
 		# Get Admin access_token
-		response = AuthorizedRestClient.GetPasswordGrantOAuthToken(CL_SalesforceSettings.SALESFORCE_PWD, CL_SalesforceSettings.SALESFORCE_SECRET, url, True)
+		if CL_GeneralIntegrationSettings.AUTHENTICATION_TYPE == USER_PWD_AUTH:
+			response = AuthorizedRestClient.GetPasswordGrantOAuthToken(CL_SalesforceSettings.SALESFORCE_PWD, CL_SalesforceSettings.SALESFORCE_SECRET, url, True)
+		else:
+			response = AuthorizedRestClient.GetClientCredentialsGrantOAuthToken(CL_SalesforceSettings.SALESFORCE_SECRET, url, True)
 		if response["access_token"] != "" and response["access_token"] is not None:
 			accessToken = str(response.access_token)
 			if accessToken == "":

@@ -10,8 +10,6 @@ from CPQ_SF_PriceBookMapping import CL_PriceBookMapping
 from CPQ_SF_BusinessPartnerModules import CL_BusinessPartnerModules
 from CPQ_SF_ContactModules import CL_ContactIntegrationModules
 from CPQ_SF_IntegrationMessages import CL_IntegrationMessages
-from Scripting.Quote import MessageLevel
-
 
 def main(Param, quote):
     editQuoteURl = "/cart/edit?ownerId={ownerId}&quoteId={quoteId}"
@@ -131,7 +129,8 @@ def main(Param, quote):
                 #############################################
                 class_custom_object_modules.process_inbound_custom_object_mappings(bearerToken, EVENT_CREATE)
 
-                Quote.Save()
+                if Param.createQuote:
+                    Quote.Save()
             return redirectionUrl
 
 

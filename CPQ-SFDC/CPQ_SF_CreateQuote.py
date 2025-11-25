@@ -12,7 +12,7 @@ from CPQ_SF_IntegrationMessages import CL_MessageHandler, CL_IntegrationMessages
 
 
 def main(Param, quote):
-    redirectionUrl = CL_CPQSettings.CPQ_URL + "/quotation/Cart.aspx"
+    redirectionUrl = CL_CPQSettings.CPQ_URL
     externalParameters = Param.externalParameters
     # Get Opportunity Id
     opportunityId = externalParameters["opportunityid"].strip()
@@ -23,7 +23,7 @@ def main(Param, quote):
             # 1. AUTHORIZATION
             #############################################
             bearerToken = class_sf_integration_modules.get_auth2_token()
-            adminToken = class_sf_integration_modules.get_admin_auth2_token()
+            #adminToken = class_sf_integration_modules.get_admin_auth2_token()
             # GET other quotes linked to opportunity
 
             sOQLResponse = class_sf_integration_modules.build_cr_get_opp_quotes(opportunityId)
@@ -44,6 +44,10 @@ def main(Param, quote):
                 Quote = quote
                 quoteNumber = Quote.CompositeNumber
             if Quote:
+                redirectionUrl = redirectionUrl +"/cart/edit?ownerId={ownerId}&quoteId={quoteId}".format(
+                    ownerId=Quote.UserId,
+                    quoteId=Quote.QuoteId
+                )
                 class_sf_integration_modules = CL_SalesforceIntegrationModules(Quote, TagParserQuote, None, Session)
                 class_customer_modules = CL_CustomerModules(Quote, TagParserQuote, None, Session)
                 class_contact_modules = CL_ContactIntegrationModules(Quote, TagParserQuote, None, Session)

@@ -9,6 +9,44 @@ VIEW = "view"
 # action Edit -> Id = 13
 EDIT_ACTION_ID = 13
 
+# Helpers
+def get_param(params, key, default=None):
+    """Safe dictionary access."""
+    return params[key] if key in params else default
+
+def create_quote(externalParams):
+    uniqueId = get_param(externalParams, "uniqueId")
+    if uniqueId:
+        if not Session[uniqueId]:
+            Session[uniqueId] = ScriptExecutor.Execute(
+                "CPQ_SF_CreateQuote",
+                {"externalParameters": externalParams, "createQuote": True}
+            )
+        return Session[uniqueId]
+    return ScriptExecutor.Execute(
+        "CPQ_SF_CreateQuote",
+        {"externalParameters": externalParams, "createQuote": True}
+    )
+
+def edit_quote(externalParams):
+    """Edit or view the quote based on permissions."""
+    if CL_GeneralIntegrationSettings.ALL_REV_ATTACHED_TO_SAME_OPPORTUNITY:
+        quote_number = get_param(externalParams, "quotenumber")
+        quote = QuoteHelper.Get(quote_number)
+    else:
+        quote_id = get_param(externalParams, "quoteId")
+        quote = QuoteHelper.Get(float(quote_id))
+
+    if is_action_allowed(quote, User, externalParams, EDIT_ACTION_ID):
+        return ScriptExecutor.Execute(
+            "CPQ_SF_EditQuote",
+            {"externalParameters": externalParams, "quote": quote}
+        )
+    return ScriptExecutor.Execute(
+        "CPQ_SF_ViewQuote",
+        {"externalParameters": externalParams}
+    )
+
 # Get parameters
 externalParameters = context.ExternalParameters
 # Create Quote or Edit Quote
@@ -33,22 +71,9 @@ if Quote is not None:
 User.RefreshMarkets()
 
 if action == CREATE:
-    redirectionUrl = ScriptExecutor.Execute("CPQ_SF_CreateQuote", {"externalParameters": externalParameters, "createQuote": True})
+    redirectionUrl = create_quote(externalParameters)
 elif action == EDIT:
-    # Open active revision
-    if CL_GeneralIntegrationSettings.ALL_REV_ATTACHED_TO_SAME_OPPORTUNITY:
-        quoteNumber = externalParameters["quotenumber"]
-        Quote = QuoteHelper.Edit(quoteNumber)
-    # Open chosen revision
-    else:
-        quoteId = externalParameters["quoteId"]
-        ownerId = externalParameters["ownerId"]
-        Quote = QuoteHelper.Edit(float(ownerId), float(quoteId))
-
-    if is_action_allowed(Quote, User, externalParameters, EDIT_ACTION_ID) == True:
-        redirectionUrl = ScriptExecutor.Execute("CPQ_SF_EditQuote", {"externalParameters": externalParameters, "quote": Quote})
-    else:
-        redirectionUrl = ScriptExecutor.Execute("CPQ_SF_ViewQuote", {"externalParameters": externalParameters})
+    redirectionUrl = edit_quote(externalParameters)
 elif action == NEW:
     redirectionUrl = ScriptExecutor.Execute("CPQ_SF_LandingOnCatalogue")
 elif action == VIEW:
