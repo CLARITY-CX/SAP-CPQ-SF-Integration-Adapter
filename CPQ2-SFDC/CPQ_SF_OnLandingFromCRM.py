@@ -54,8 +54,6 @@ action = get_param(externalParameters, "action")
 opportunityId = get_param(externalParameters, "opportunityId", "").strip()
 Session[opportunityId] = None
 Session["Query"] = None
-test = get_param(externalParameters, "new", "nothing")
-Trace.Write("test value: " + str(test))
 
 # Set SF User Session Token & Opportunity Id
 Session["apiSessionID"] = get_param(externalParameters, "apiSessionID")
