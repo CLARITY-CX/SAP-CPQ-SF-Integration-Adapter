@@ -63,7 +63,7 @@ def main(Param, quote):
                 compositePayload.append(compositeRequest)
 
                 # Make Quote Primary - Set other Quotes Primary Flag to False
-                if CL_GeneralIntegrationSettings.ATTACH_TO_OPP_IMMEDIATELY_ON_QUOTE_CREATED:
+                if CL_GeneralIntegrationSettings.ATTACH_TO_OPP_IMMEDIATELY_ON_QUOTE_CREATED and CL_GeneralIntegrationSettings.USE_CUSTOM_PRIMARY_MECHANISM:
                     if sOQLResponse is not None:
                         if sOQLResponse["totalSize"] > 0:
                             records = list()
@@ -93,6 +93,13 @@ def main(Param, quote):
                     compositeRequest["body"] = {"records": records}
                     compositePayload.append(compositeRequest)
 
+                    # Native: Sync this Quote to the Opportunity (used when USE_CUSTOM_PRIMARY_MECHANISM is False)
+                    if not CL_GeneralIntegrationSettings.USE_CUSTOM_PRIMARY_MECHANISM:
+                        compositeRequest = class_sf_integration_modules.build_cr_sobject_sync_quote_to_opportunity(
+                            opportunityId, CL_SalesforceQuoteParams.SF_QUOTE_OBJECT
+                        )
+                        compositePayload.append(compositeRequest)
+
                 if compositePayload:
                     # Check Create/Update Quote Permissions
                     permissionList = [class_sf_integration_modules.build_permission_checklist(CL_SalesforceQuoteParams.SF_QUOTE_OBJECT, True, True)]
@@ -105,6 +112,12 @@ def main(Param, quote):
                     if opportunityResponse:
                         OpportunityMapping.on_quote_create_inbound_opportunity_integration_mapping(Quote, opportunityResponse["body"])
                         OpportunityMapping.on_quote_createupdate_inbound_opportunity_integration_mapping(Quote, opportunityResponse["body"])
+
+                    # Check response for marking quote as primary via native Salesforce functionality
+                    if not CL_GeneralIntegrationSettings.USE_CUSTOM_PRIMARY_MECHANISM:
+                        syncResponse = next((resp for resp in response["compositeResponse"] if str(resp["referenceId"]) == REF.SYNC_QUOTE_REFID), None)
+                        if syncResponse and syncResponse["httpStatusCode"] != 204:
+                            Log.Error("CPQ-SFDC: Sync Quote to Opportunity", str(syncResponse))
 
                     # Get Opportunity Partners info
                     opportunityPartnersResp = next((resp for resp in response["compositeResponse"] if str(resp["referenceId"]) == REF.GET_OPP_PARTNERS_REFID), None)

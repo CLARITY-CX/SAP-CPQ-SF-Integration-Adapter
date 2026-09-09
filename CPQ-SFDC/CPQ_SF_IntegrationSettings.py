@@ -13,6 +13,8 @@ class CL_GeneralIntegrationSettings:
 	UPDATE_EXISTING_PRODUCTS_IN_SALESFORCE = True
 	# Attach quote to opportunity immediately upon quote is created
 	ATTACH_TO_OPP_IMMEDIATELY_ON_QUOTE_CREATED = True
+	# Use custom primary mechanism. When False, uses Salesforce's native Quote Sync mechanism
+	USE_CUSTOM_PRIMARY_MECHANISM = True
 	# Product types that will not be included in CRM opportunity
 	PRODUCT_TYPE_EXCLUSION = []
 	# Only one quote can be linked to SF opportunity
