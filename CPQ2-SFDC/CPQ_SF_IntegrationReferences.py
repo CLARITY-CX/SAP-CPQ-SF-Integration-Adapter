@@ -79,6 +79,7 @@ class CL_CompositeRequestReferences():
     OPP_PARTNER_ROLE_ACC_REFID = "Get_{partnerFunction}_Opportunity_Partner_Role_Account"
     CREATE_PRICEBOOK_ENTRIES_REFID = "Create_PriceBookEntries"
     UPDATE_PRICEBOOK_ENTRIES_REFID = "Update_PriceBookEntries"
+    SYNC_QUOTE_REFID = "Sync_Quote_To_Opportunity"
 
 
 ###############################################################################################

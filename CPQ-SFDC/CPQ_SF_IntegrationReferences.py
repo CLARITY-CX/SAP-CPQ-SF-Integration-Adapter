@@ -96,6 +96,7 @@ class CL_CompositeRequestReferences():
     CREATE_CUST_OBJ_ITEM_REFID = "Create_{customObjectName}"
     UPDATE_CUST_OBJ_ITEM_REFID = "Update_{customObjectName}"
     DELETE_CUST_OBJ_ITEM_REFID = "Delete_{customObjectName}"
+    SYNC_QUOTE_REFID = "Sync_Quote_To_Opportunity"
 
 ###############################################################################################
 # Class CL_IntegrationReferences:

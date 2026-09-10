@@ -181,6 +181,15 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		return compositeRequest
 
 	###############################################################################################
+	# Function to get the compositeRequest of a PATCH Opportunity request (sync Quote as primary)
+	###############################################################################################
+	def build_cr_sobject_sync_quote_to_opportunity(self, opportunityId, quoteReferenceId):
+		url = API.CR_GET_OPPORTUNITY_API.format(version=str(CL_SalesforceSettings.SALESFORCE_VERSION), opportunityId=str(opportunityId))
+		body = {"SyncedQuoteId": "@{" + str(quoteReferenceId) + "[0].id}"}
+		compositeRequest = self.build_cr_sobject_request(url, API.PATCH, body, REF.SYNC_QUOTE_REFID)
+		return compositeRequest
+
+	###############################################################################################
 	# Function to add sObject collection payload header (url, method, header) for Composite Requests
 	###############################################################################################
 	def get_cr_sobjectcollection_payload_header(self, method, referenceId, records):
@@ -377,12 +386,16 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 	# Salesforce Quote records that are linked to an opportunity
 	###############################################################################################
 	def build_cr_get_opp_quotes(self, opportunityId):
-		query = "?q=SELECT+Name,Id,{sfQuoteIdField},{sfOwnerIdField},{sfPrimaryField}+FROM+{sfQuoteObject}+WHERE+{sfQuoteOpportunityField}='{opportunityId}'"
 		sfQuoteIdField = CL_SalesforceQuoteParams.SF_QUOTE_ID_FIELD
 		sfOwnerIdField = CL_SalesforceQuoteParams.SF_OWNER_ID_FIELD
 		sfPrimaryField = CL_SalesforceQuoteParams.SF_PRIMARY_QUOTE_FIELD
 		sfQuoteOpportunityField = CL_SalesforceQuoteParams.SF_QUOTE_OPPORTUNITY_FIELD
-		query = query.format(sfQuoteIdField=str(sfQuoteIdField),sfOwnerIdField=str(sfOwnerIdField), sfPrimaryField=str(sfPrimaryField),sfQuoteObject=str(CL_SalesforceQuoteParams.SF_QUOTE_OBJECT),sfQuoteOpportunityField=str(sfQuoteOpportunityField),opportunityId=str(opportunityId))
+		if CL_GeneralIntegrationSettings.USE_CUSTOM_PRIMARY_MECHANISM:
+			query = "?q=SELECT+Name,Id,{sfQuoteIdField},{sfOwnerIdField},{sfPrimaryField}+FROM+{sfQuoteObject}+WHERE+{sfQuoteOpportunityField}='{opportunityId}'"
+			query = query.format(sfQuoteIdField=str(sfQuoteIdField),sfOwnerIdField=str(sfOwnerIdField), sfPrimaryField=str(sfPrimaryField),sfQuoteObject=str(CL_SalesforceQuoteParams.SF_QUOTE_OBJECT),sfQuoteOpportunityField=str(sfQuoteOpportunityField),opportunityId=str(opportunityId))
+		else:
+			query = "?q=SELECT+Name,Id,{sfQuoteIdField},{sfOwnerIdField}+FROM+{sfQuoteObject}+WHERE+{sfQuoteOpportunityField}='{opportunityId}'"
+			query = query.format(sfQuoteIdField=str(sfQuoteIdField),sfOwnerIdField=str(sfOwnerIdField),sfQuoteObject=str(CL_SalesforceQuoteParams.SF_QUOTE_OBJECT),sfQuoteOpportunityField=str(sfQuoteOpportunityField),opportunityId=str(opportunityId))
 		bearerToken = self.get_auth2_token()
 		headers = self.get_authorization_header(bearerToken)
 		response = self.call_soql_api(headers, query,INT_REF.REF_GET_QUOTES_LINKED_TO_OPPORTUNITY)
@@ -404,7 +417,8 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		# Key Mapping for Opportunity ID
 		record[CL_SalesforceQuoteParams.SF_QUOTE_OPPORTUNITY_FIELD] = get_quote_opportunity_id(self.Quote)
 		# Mark Quote as Primary
-		record[CL_SalesforceQuoteParams.SF_PRIMARY_QUOTE_FIELD] = True
+		if CL_GeneralIntegrationSettings.USE_CUSTOM_PRIMARY_MECHANISM:
+			record[CL_SalesforceQuoteParams.SF_PRIMARY_QUOTE_FIELD] = True
 		return record
 
 	###############################################################################################

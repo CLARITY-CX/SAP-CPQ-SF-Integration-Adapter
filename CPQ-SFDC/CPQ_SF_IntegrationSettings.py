@@ -13,6 +13,8 @@ class CL_GeneralIntegrationSettings:
 	UPDATE_EXISTING_PRODUCTS_IN_SALESFORCE = True
 	# Attach quote to opportunity immediately upon quote is created
 	ATTACH_TO_OPP_IMMEDIATELY_ON_QUOTE_CREATED = True
+	# Use custom primary mechanism. When False, uses Salesforce's native Quote Sync mechanism
+	USE_CUSTOM_PRIMARY_MECHANISM = True
 	# Product types that will not be included in CRM opportunity
 	PRODUCT_TYPE_EXCLUSION = []
 	# Only one quote can be linked to SF opportunity
@@ -56,6 +58,8 @@ class CL_SalesforceQuoteParams:
 	# CRM Field For Persisting Quote Owner Id
 	SF_OWNER_ID_FIELD = "Owner_ID__c"
 	# CRM Field For Persisting Information About Primary Quote
+	# This field can be left blank if USE_CUSTOM_PRIMARY_MECHANISM = False
+	# in CL_GeneralIntegrationSettings
 	SF_PRIMARY_QUOTE_FIELD = "Primary__c"
 	# CRM Field For Persisting Information About Quote Currency
 	SF_QUOTE_CURRENCY_FIELD = ""
