@@ -141,7 +141,7 @@ def main():
 					compositePayload.append(compositeRequest)
 
 		# Make Quote Primary - Set other Quotes Primary Flag to False
-		if otherQuotes is not None:
+		if otherQuotes is not None and CL_GeneralIntegrationSettings.USE_CUSTOM_PRIMARY_MECHANISM:
 			for linkedQuote in otherQuotes:
 				if int(linkedQuote[CL_SalesforceQuoteParams.SF_PRIMARY_QUOTE_FIELD]):
 					record = dict()
