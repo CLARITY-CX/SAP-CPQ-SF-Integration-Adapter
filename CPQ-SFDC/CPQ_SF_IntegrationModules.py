@@ -419,7 +419,11 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		record[CL_SalesforceQuoteParams.SF_OWNER_ID_FIELD] = self.Quote.UserId
 		# Quote Currency
 		if CL_SalesforceQuoteParams.SF_QUOTE_CURRENCY_FIELD:
-			record[CL_SalesforceQuoteParams.SF_QUOTE_CURRENCY_FIELD] = self.Quote.SelectedMarket.CurrencyCode
+			if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+				currencyCode = self.Quote.Currency.Code
+			else:
+				currencyCode = self.Quote.SelectedMarket.CurrencyCode
+			record[CL_SalesforceQuoteParams.SF_QUOTE_CURRENCY_FIELD] = currencyCode
 		# Quote Number
 		record["Name"] = self.Quote.CompositeNumber
 		# Mark Quote as Primary
@@ -481,7 +485,10 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		if priceBook: record["Pricebook2Id"] = priceBook
 		# Opportunity Currency
 		if CL_GeneralIntegrationSettings.SF_MCE:
-			currencyCode = self.Quote.SelectedMarket.CurrencyCode
+			if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+				currencyCode = self.Quote.Currency.Code
+			else:
+				currencyCode = self.Quote.SelectedMarket.CurrencyCode
 			record["CurrencyIsoCode"] = currencyCode
 		# Opportunity Main Account
 		record = self.get_record_cu_opp_oppaccount(record)
@@ -501,7 +508,10 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		record["Id"] = opportunityId
 		# Opportunity Currency
 		if CL_GeneralIntegrationSettings.SF_MCE:
-			currencyCode = self.Quote.SelectedMarket.CurrencyCode
+			if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+				currencyCode = self.Quote.Currency.Code
+			else:
+				currencyCode = self.Quote.SelectedMarket.CurrencyCode
 			record["CurrencyIsoCode"] = currencyCode
 		# Opportunity Main Account
 		record = self.get_record_cu_opp_oppaccount(record)

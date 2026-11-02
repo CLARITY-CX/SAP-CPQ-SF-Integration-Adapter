@@ -265,7 +265,10 @@ class CL_LineItemIntegrationModules(CL_SalesforceIntegrationModules, CL_Opportun
 	###############################################################################################
 	def get_existing_price_book_entries(self, bearerToken, quoteItems, sfPriceBook, sfStandardPriceBookId):
 		responses = list()
-		currencyCode = self.Quote.SelectedMarket.CurrencyCode
+		if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+			currencyCode = self.Quote.Currency.Code
+		else:
+			currencyCode = self.Quote.SelectedMarket.CurrencyCode
 		sfProductIds = [item["sfId"] for item in quoteItems if item["sfId"] != ""]
 		if sfProductIds:
 			# Remove Duplicates
@@ -296,7 +299,10 @@ class CL_LineItemIntegrationModules(CL_SalesforceIntegrationModules, CL_Opportun
 	def create_update_price_book_entries(self, bearerToken, quoteItems, sfPriceBook, sfStandardPriceBookId):
 		response = None
 		compositePayload = list()
-		currencyCode = self.Quote.SelectedMarket.CurrencyCode
+		if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+			currencyCode = self.Quote.Currency.Code
+		else:
+			currencyCode = self.Quote.SelectedMarket.CurrencyCode
 		# Update Price Book Entries (Standard & Custom)
 		quoteItemsPriceToUpdate = filter(lambda item: item["sfId"] != "" and (item["sfStandardPriceBookEntryId"] != "" or item["sfCustomPriceBookEntryId"] != ""), quoteItems)
 		if quoteItemsPriceToUpdate:

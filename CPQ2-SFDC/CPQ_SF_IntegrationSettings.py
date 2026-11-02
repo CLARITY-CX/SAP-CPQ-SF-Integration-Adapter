@@ -17,6 +17,8 @@ class CL_GeneralIntegrationSettings:
     ATTACH_TO_OPP_IMMEDIATELY_ON_QUOTE_CREATED = True
     # Use custom primary mechanism. When False, uses Salesforce's native Quote Sync mechanism
     USE_CUSTOM_PRIMARY_MECHANISM = True
+    # Use sales area instead of markets
+    USE_SALES_AREA = False
     # Product types that will not be included in CRM opportunity
     PRODUCT_TYPE_EXCLUSION = []
     # Only one quote can be linked to SF opportunity

@@ -411,7 +411,11 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		record[CL_SalesforceQuoteParams.SF_OWNER_ID_FIELD] = self.Quote.OwnerId
 		# Quote Currency
 		if CL_SalesforceQuoteParams.SF_QUOTE_CURRENCY_FIELD:
-			record[CL_SalesforceQuoteParams.SF_QUOTE_CURRENCY_FIELD] = self.Quote.SelectedMarket.CurrencyCode
+			if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+				currencyCode = self.Quote.Currency.Code
+			else:
+				currencyCode = self.Quote.SelectedMarket.CurrencyCode
+			record[CL_SalesforceQuoteParams.SF_QUOTE_CURRENCY_FIELD] = currencyCode
 		# Quote Number
 		record["Name"] = self.Quote.QuoteNumber
 		# Key Mapping for Opportunity ID
@@ -466,7 +470,10 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		if priceBook: record["Pricebook2Id"] = priceBook
 		# Opportunity Currency
 		if CL_GeneralIntegrationSettings.SF_MCE:
-			currencyCode = self.Quote.SelectedMarket.CurrencyCode
+			if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+				currencyCode = self.Quote.Currency.Code
+			else:
+				currencyCode = self.Quote.SelectedMarket.CurrencyCode
 			record["CurrencyIsoCode"] = currencyCode
 		# Opportunity Main Account
 		partnerFunction = next((mapping["CpqPartnerFunction"] for mapping in CL_OutboundBusinessPartnerMapping().outboundPartnerMappings if mapping["SalesforceAccount"] == CL_SalesforceAccountObjects.SF_OPPORTUNITY_ACC), None)
@@ -488,7 +495,10 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 		record["Id"] = opportunityId
 		# Opportunity Currency
 		if CL_GeneralIntegrationSettings.SF_MCE:
-			currencyCode = self.Quote.SelectedMarket.CurrencyCode
+			if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+				currencyCode = self.Quote.Currency.Code
+			else:
+				currencyCode = self.Quote.SelectedMarket.CurrencyCode
 			record["CurrencyIsoCode"] = currencyCode
 		# Opportunity Main Account
 		partnerFunction = next((mapping["CpqPartnerFunction"] for mapping in CL_OutboundBusinessPartnerMapping().outboundPartnerMappings if mapping["SalesforceAccount"] == CL_SalesforceAccountObjects.SF_OPPORTUNITY_ACC), None)
@@ -630,6 +640,8 @@ class CL_SalesforceIntegrationModules(CL_CpqHelper):
 	# Function to get Salesforce pricebook id based on mapping
 	###############################################################################################
 	def get_sf_pricebook_id(self):
+		if CL_GeneralIntegrationSettings.USE_SALES_AREA:
+			return None
 		# Opportunity Price Book
 		priceBookMappings = CL_PriceBookMapping().priceBookMapping
 		# Get Quote Market System Id
